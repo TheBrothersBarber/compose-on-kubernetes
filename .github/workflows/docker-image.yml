@@ -9,10 +9,21 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Docker Build Argument
+      run: |
+        echo "Checking for RUN_BASE..."
+        if [ -z "$RUN_BASE" ]; then
+          echo "RUN_BASE is not set. Defaulting to alpine:3.17."
+          echo "RUN_BASE=alpine:3.17" >> $GITHUB_ENV
+        fi
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: |
+        docker build . \
+          --file Dockerfile \
+          --tag my-image-name:$(date +%s) \
+          --build-arg RUN_BASE=${RUN_BASE}
